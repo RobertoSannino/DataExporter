@@ -1,4 +1,5 @@
 import config.Env;
+import connection.OracleConnectionInstance;
 import db.DbManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,12 +24,12 @@ public class TestSuite {
 
     @Test
     public void testConnection() {
-        ConnectionInstance c1 = new ConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, this.userQuery);
+        ConnectionInstance c1 = new OracleConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, this.userQuery);
         System.out.println(c1.getConnectionString());
         DbManager dbManager = new DbManager(c1);
         dbManager.executeQuery("SELECT USR_KEY FROM USR");
 
-        ConnectionInstance c2 = new ConnectionInstance(Env.LOCAL_2, "LOCAL_2", false, this.userQuery);
+        ConnectionInstance c2 = new OracleConnectionInstance(Env.LOCAL_2, "LOCAL_2", false, this.userQuery);
         System.out.println(c2.getConnectionString());
         DbManager dbManager2 = new DbManager(c2);
         dbManager2.executeQuery("SELECT USR_KEY FROM USR");
@@ -55,7 +56,7 @@ public class TestSuite {
     }
 
     @Test
-    public void testRangedQueryCreation() {
+    public void testOracleRangedQueryCreation() {
         int[] range = new int[]{0,50};
         String query = "SELECT USR_LOGIN AS PIPPO_LOGIN, USR_LAST_NAME AS NACHNAME FROM USR ";
         String newQuery;
@@ -65,8 +66,16 @@ public class TestSuite {
     }
 
     @Test
-    public void testRangedQuery() {
-        ConnectionInstance c1 = new ConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, this.userQuery);
+    public void testMySqlRangedQueryCreation() {
+        int[] range = new int[]{0,50};
+        String query = "SELECT USR_LOGIN AS PIPPO_LOGIN, USR_LAST_NAME AS NACHNAME FROM USR ";
+        String newQuery = query + " LIMIT " + range[0] + "," + range[1];
+        System.out.println(newQuery);
+    }
+
+    @Test
+    public void testOracleRangedQuery() {
+        ConnectionInstance c1 = new OracleConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, this.userQuery);
 
         String query = "SELECT USR_LOGIN AS PIPPO_LOGIN, USR_LAST_NAME AS NACHNAME FROM USR WHERE USR_STATUS != 'Deleted' ORDER BY USR_LOGIN";
         query = query.substring(0, query.indexOf(" FROM ")) + ", rownum r " + query.substring(query.indexOf(" FROM "));

@@ -38,9 +38,6 @@ public class DataService {
         List<String> files = new ArrayList<>();
         connectionInstances.forEach(ci -> files.add(EXPORT_DIR + ci.getConnectionName() + "_" + EX_TIME));
 
-        /*files.add(EXPORT_DIR + c1.getConnectionName() + "_" + EX_TIME);
-        files.add(EXPORT_DIR + c2.getConnectionName() + "_" + EX_TIME);*/
-
         diff(files);
 
         System.out.println("*** SUBSTRACT FINISHED ***");
@@ -52,8 +49,6 @@ public class DataService {
 
         exporterPool = Executors.newCachedThreadPool();
         connectionInstances.forEach(ci -> splitExport(ci, getResultSetRows(ci)));
-        /*splitExport(this.c1, getResultSetRows(this.c1));
-        splitExport(this.c2, getResultSetRows(this.c2));*/
 
         exporterPool.shutdown();
         while(!exporterPool.isTerminated()) {
@@ -65,10 +60,7 @@ public class DataService {
             }
         }
 
-        connectionInstances.forEach(ci -> mergeFiles(ci));
-
-        /*mergeFiles(c1);
-        mergeFiles(c2);*/
+        connectionInstances.forEach(this::mergeFiles);
 
         System.out.println("*** EXPORTS FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS ***");
     }
@@ -102,9 +94,11 @@ public class DataService {
         for (int i = 0; i < THREADS_NO; i++ ) {
             if (i == THREADS_NO - 1)
                 rangeSup = rows + 1;
+
+            int[] newRange = new int[]{rangeInf, rangeSup};
             exporterPool.submit(
                     new ExporterWorker(
-                            i, c.getConnectionName(), new int[]{rangeInf, rangeSup}, c.getQuery(), new DbManager(c), c.getProjectionAttributes()
+                            i, c.getConnectionName(), newRange, c.getRangedQuery(newRange), new DbManager(c), c.getProjectionAttributes()
                     )
             );
             rangeInf = rangeSup;

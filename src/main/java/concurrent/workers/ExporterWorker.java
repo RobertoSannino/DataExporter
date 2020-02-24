@@ -17,15 +17,15 @@ public class ExporterWorker implements Runnable {
 
     private String connectionName;
     private int[] range;
-    private String query;
+    private String rangedQuery;
     private DbManager dbManager;
     private ArrayList<String> attrinbutesToExport;
 
-    public ExporterWorker(int workerId, String connectionName, int[] range, String query, DbManager dbManager, ArrayList<String> attrinbutesToExport) {
+    public ExporterWorker(int workerId, String connectionName, int[] range, String rangedQuery, DbManager dbManager, ArrayList<String> attrinbutesToExport) {
         this.workerId = workerId;
         this.connectionName = connectionName;
         this.range = range;
-        this.query = query;
+        this.rangedQuery = rangedQuery;
         this.dbManager = dbManager;
         this.attrinbutesToExport = attrinbutesToExport;
     }
@@ -33,7 +33,7 @@ public class ExporterWorker implements Runnable {
     @Override
     public void run() {
         System.out.println("\t\t||| Exporting for: " + connectionName + " range {" + range[0] + "," + range[1] + "}");
-        createExport(dbManager.executeQuery(getRangedQuery(this.query, this.range)));
+        createExport(dbManager.executeQuery(this.rangedQuery));
         System.out.println("\t\t||| Finished Export for: " + connectionName + " range {" + range[0] + "," + range[1] + "}");
     }
 
@@ -61,11 +61,6 @@ public class ExporterWorker implements Runnable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    private String getRangedQuery(String query, int[] range) {
-        query = query.substring(0, query.indexOf(" FROM ")) + ", ROWNUM r " + query.substring(query.indexOf(" FROM "));
-        return "SELECT * FROM ( " + query + " ) WHERE r >= " + range[0] + " and r < " + range[1] + " order by r";
     }
 
 }
