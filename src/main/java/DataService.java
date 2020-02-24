@@ -15,38 +15,35 @@ public class DataService {
 
     private ExecutorService exporterPool;
 
-    private ConnectionInstance c1;
-    private ConnectionInstance c2;
+    //private ConnectionInstance c1;
+    //private ConnectionInstance c2;
+
+    private List<ConnectionInstance> connectionInstances;
 
 
-    public DataService(ConnectionInstance c1, ConnectionInstance c2) {
-        this.c1 = c1;
-        this.c2 = c2;
+    public DataService(List<ConnectionInstance> connectionInstances) {
+        this.connectionInstances = connectionInstances;
+        Permits.setExecPermitsNumber(connectionInstances.size());
     }
 
     /* main */
     public void substractQueryResults() {
+        if(connectionInstances.size() != 2) {
+            System.out.println("ERROR: DIFF OPERATION CAN ONLY BE PERFORMED BETWEEN TWO CONNECTIONS");
+            return;
+        }
+
         exportData();
 
         List<String> files = new ArrayList<>();
-        files.add(EXPORT_DIR + c1.getConnectionName() + "_" + EX_TIME);
-        files.add(EXPORT_DIR + c2.getConnectionName() + "_" + EX_TIME);
+        connectionInstances.forEach(ci -> files.add(EXPORT_DIR + ci.getConnectionName() + "_" + EX_TIME));
+
+        /*files.add(EXPORT_DIR + c1.getConnectionName() + "_" + EX_TIME);
+        files.add(EXPORT_DIR + c2.getConnectionName() + "_" + EX_TIME);*/
 
         diff(files);
 
         System.out.println("*** SUBSTRACT FINISHED ***");
-    }
-
-    private void diff(List<String> files) {
-        System.out.println("*** STARTING COMPUTING DIFFERENCES ***");
-        long startTime = System.currentTimeMillis();
-        Permits.acquireExecPermits(2);
-
-        new Thread(new DiffWorker(0, c1.getConnectionName(), files)).start();
-        new Thread(new DiffWorker(1, c2.getConnectionName(), files)).start();
-
-        Permits.acquireExecPermits(2);
-        System.out.println("*** DIFFERENCES COMPUTATION FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS ***");
     }
 
     public void exportData() {
@@ -54,8 +51,9 @@ public class DataService {
         long startTime = System.currentTimeMillis();
 
         exporterPool = Executors.newCachedThreadPool();
-        splitExport(this.c1, getResultSetRows(this.c1));
-        splitExport(this.c2, getResultSetRows(this.c2));
+        connectionInstances.forEach(ci -> splitExport(ci, getResultSetRows(ci)));
+        /*splitExport(this.c1, getResultSetRows(this.c1));
+        splitExport(this.c2, getResultSetRows(this.c2));*/
 
         exporterPool.shutdown();
         while(!exporterPool.isTerminated()) {
@@ -67,10 +65,25 @@ public class DataService {
             }
         }
 
-        mergeFiles(c1);
-        mergeFiles(c2);
+        connectionInstances.forEach(ci -> mergeFiles(ci));
+
+        /*mergeFiles(c1);
+        mergeFiles(c2);*/
 
         System.out.println("*** EXPORTS FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS ***");
+    }
+
+    private void diff(List<String> files) {
+        System.out.println("*** STARTING COMPUTING DIFFERENCES ***");
+
+        long startTime = System.currentTimeMillis();
+        Permits.acquireExecPermits(connectionInstances.size());
+
+        new Thread(new DiffWorker(0, connectionInstances.get(0).getConnectionName(), files)).start();
+        new Thread(new DiffWorker(1, connectionInstances.get(1).getConnectionName(), files)).start();
+
+        Permits.acquireExecPermits(connectionInstances.size());
+        System.out.println("*** DIFFERENCES COMPUTATION FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS ***");
     }
 
     private int getResultSetRows(ConnectionInstance c) {

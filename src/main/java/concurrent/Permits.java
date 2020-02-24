@@ -5,7 +5,11 @@ import java.util.concurrent.Semaphore;
 
 public class Permits {
 
-    private static Semaphore execPermits = new Semaphore(2);
+    private static Semaphore execPermits;
+
+    public static void setExecPermitsNumber(int permits) {
+        execPermits = new Semaphore(permits);
+    }
 
     public static void acquireExecPermits(int permits) {
         try {
