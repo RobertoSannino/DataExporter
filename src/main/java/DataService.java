@@ -3,6 +3,8 @@ import concurrent.workers.ExporterWorker;
 import concurrent.Permits;
 import db.DbManager;
 import connection.ConnectionInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -13,11 +15,8 @@ import static config.Const.*;
 
 public class DataService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataService.class);
     private ExecutorService exporterPool;
-
-    //private ConnectionInstance c1;
-    //private ConnectionInstance c2;
-
     private List<ConnectionInstance> connectionInstances;
 
 
@@ -26,10 +25,11 @@ public class DataService {
         Permits.setExecPermitsNumber(connectionInstances.size());
     }
 
-    /* main */
     public void substractQueryResults() {
+        LOGGER.warn("SUBSTRACT STARTED");
+
         if(connectionInstances.size() != 2) {
-            System.out.println("ERROR: DIFF OPERATION CAN ONLY BE PERFORMED BETWEEN TWO CONNECTIONS");
+            LOGGER.error("DIFF OPERATION CAN ONLY BE PERFORMED BETWEEN TWO CONNECTIONS");
             return;
         }
 
@@ -40,11 +40,11 @@ public class DataService {
 
         diff(files);
 
-        System.out.println("*** SUBSTRACT FINISHED ***");
+        LOGGER.warn("SUBSTRACT FINISHED");
     }
 
     public void exportData() {
-        System.out.println("*** STARTING EXPORTS ***");
+        LOGGER.warn("STARTING EXPORTS");
         long startTime = System.currentTimeMillis();
 
         exporterPool = Executors.newCachedThreadPool();
@@ -54,7 +54,7 @@ public class DataService {
         while(!exporterPool.isTerminated()) {
             try {
                 exporterPool.awaitTermination(10, TimeUnit.SECONDS);
-                System.out.println("*** WAITING EXPORTS ***");
+                LOGGER.warn("WAITING EXPORTS TO FINISH");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -62,11 +62,11 @@ public class DataService {
 
         connectionInstances.forEach(this::mergeFiles);
 
-        System.out.println("*** EXPORTS FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS ***");
+        LOGGER.warn("EXPORTS FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS");
     }
 
     private void diff(List<String> files) {
-        System.out.println("*** STARTING COMPUTING DIFFERENCES ***");
+        LOGGER.warn("STARTING COMPUTING DIFFERENCES");
 
         long startTime = System.currentTimeMillis();
         Permits.acquireExecPermits(connectionInstances.size());
@@ -75,7 +75,7 @@ public class DataService {
         new Thread(new DiffWorker(1, connectionInstances.get(1).getConnectionName(), files)).start();
 
         Permits.acquireExecPermits(connectionInstances.size());
-        System.out.println("*** DIFFERENCES COMPUTATION FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS ***");
+        LOGGER.warn("DIFFERENCES COMPUTATION FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS");
     }
 
     private int getResultSetRows(ConnectionInstance c) {
@@ -83,7 +83,7 @@ public class DataService {
         DbManager dbManager = new DbManager(c);
         int rows = dbManager.countTable(c.getCountQuery());
         dbManager.releaseConnection();
-        System.out.println("*** COUNT FOR " + c.getConnectionName() + " FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS ***");
+        LOGGER.warn("COUNT FOR " + c.getConnectionName() + " FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS");
         return rows;
     }
 
@@ -127,7 +127,7 @@ public class DataService {
                     try {
                         new File(EXPORT_DIR + c.getConnectionName() + INTERMEDIATE_FILE_SEPARATOR + i).delete();
                     } catch (Exception e) {
-                        System.out.println("*** ERROR OCCURRED WHILE DELETING: " + EXPORT_DIR + c.getConnectionName() + INTERMEDIATE_FILE_SEPARATOR + i);
+                        LOGGER.error("ERROR OCCURRED WHILE DELETING: " + EXPORT_DIR + c.getConnectionName() + INTERMEDIATE_FILE_SEPARATOR + i);
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -140,7 +140,7 @@ public class DataService {
             e.printStackTrace();
         }
 
-        System.out.println("*** MERGE FOR " + c.getConnectionName() + " FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS ***");
+        LOGGER.warn("MERGE INTERMEDIATE FILES FOR " + c.getConnectionName() + " FINISHED IN " + (System.currentTimeMillis() - startTime)/1000f + " SECONDS");
     }
 
 }

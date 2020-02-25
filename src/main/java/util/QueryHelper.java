@@ -1,10 +1,15 @@
 package util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class QueryHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryHelper.class);
     private String query;
     private ArrayList<String> projectionAttributes;
 
@@ -17,10 +22,6 @@ public class QueryHelper {
         return query;
     }
 
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
     public ArrayList<String> getProjectionAttributes() {
         return projectionAttributes;
     }
@@ -31,14 +32,18 @@ public class QueryHelper {
         if (semicolonPosition == queryContent.length() - 1)
             queryContent = queryContent.substring(0, queryContent.length() - 1);
 
-        return queryContent.replaceAll("\n"," ").toUpperCase();
+        queryContent = queryContent.replaceAll("\n"," ").toUpperCase();
+        LOGGER.debug("SUBMITTED QUERY: " + queryContent);
+        return queryContent;
     }
 
     public String getCountQuery() {
-        String newQuery = "SELECT COUNT(1) " + this.query.substring(this.query.indexOf(" FROM "));
+        String countQuery = "SELECT COUNT(1) " + this.query.substring(this.query.indexOf(" FROM "));
         if(this.query.lastIndexOf("ORDER BY") > -1)
-            newQuery = newQuery.substring(0, newQuery.indexOf("ORDER BY"));
-        return newQuery;
+            countQuery = countQuery.substring(0, countQuery.indexOf("ORDER BY"));
+
+        LOGGER.debug("COUNT QUERY: " + countQuery);
+        return countQuery;
     }
 
     private ArrayList<String> inferProjectionAttributes(String query) {
@@ -50,21 +55,30 @@ public class QueryHelper {
             }
             attrs[i] = attrs[i].replaceAll(" ","");
         }
-        return new ArrayList<>(Arrays.asList(attrs));
+
+        ArrayList<String> projAttrs = new ArrayList<>(Arrays.asList(attrs));
+        LOGGER.debug("INFERRED PROJECTION ATTRIBUTES: " + projAttrs.toString());
+        return projAttrs;
     }
 
 
     public String getOracleRangedQuery(int[] range) {
-        String q = query.substring(0, query.indexOf(" FROM ")) + ", ROWNUM r " + query.substring(query.indexOf(" FROM "));
-        return "SELECT * FROM ( " + q + " ) WHERE r >= " + range[0] + " and r < " + range[1] + " order by r";
+        String rangedQuery = query.substring(0, query.indexOf(" FROM ")) + ", ROWNUM r " + query.substring(query.indexOf(" FROM "));
+        rangedQuery = "SELECT * FROM ( " + rangedQuery + " ) WHERE r >= " + range[0] + " and r < " + range[1] + " order by r";
+
+        LOGGER.debug("RANGED QUERY: " + rangedQuery);
+        return rangedQuery;
     }
 
     public String getMySqlRangedQuery(int[] range) {
-        return this.query + " LIMIT " + range[0] + "," + (range[1] - range[0]);
+        String rangedQuery =  this.query + " LIMIT " + range[0] + "," + (range[1] - range[0]);
+        LOGGER.debug("RANGED QUERY: " + rangedQuery);
+        return rangedQuery;
     }
 
     public String getPostgresRangedQuery(int[] range) {
-        return this.query + " OFFSET " + range[0] + " LIMIT " + (range[1] - range[0]);
-
+        String rangedQuery =   this.query + " OFFSET " + range[0] + " LIMIT " + (range[1] - range[0]);
+        LOGGER.debug("RANGED QUERY: " + rangedQuery);
+        return rangedQuery;
     }
 }

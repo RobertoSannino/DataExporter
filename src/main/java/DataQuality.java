@@ -16,15 +16,15 @@ public class DataQuality {
 
         ConnectionInstance c1 = new OracleConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, QUERY_DIR + "ROLE_MEMS_2");
         ConnectionInstance c2 = new OracleConnectionInstance(Env.LOCAL_2,"LOCAL_2", true, QUERY_DIR + "ROLE_MEMS");
-        connectionInstances.add(c1);
-        connectionInstances.add(c2);
 
-/*
-        ConnectionInstance c1 = new MySqlConnectionInstance(Env.MY_SQL, "MY_SQL", QUERY_DIR + "USER");
-        ConnectionInstance c2 = new PostgresConnectionInstance(Env.POSTGRES,"POSTGRES", QUERY_DIR + "USER");
+        ConnectionInstance c3 = new MySqlConnectionInstance(Env.MY_SQL, "MY_SQL", QUERY_DIR + "USER");
+        ConnectionInstance c4 = new PostgresConnectionInstance(Env.POSTGRES,"POSTGRES", QUERY_DIR + "USER");
+
         connectionInstances.add(c1);
         connectionInstances.add(c2);
-*/
+        connectionInstances.add(c3);
+        connectionInstances.add(c4);
+
         DataService tbe = new DataService(connectionInstances);
         //tbe.substractQueryResults();
         tbe.exportData();

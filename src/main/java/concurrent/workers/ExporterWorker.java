@@ -1,6 +1,8 @@
 package concurrent.workers;
 
 import db.DbManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -13,6 +15,7 @@ import static config.Const.INTERMEDIATE_FILE_SEPARATOR;
 
 public class ExporterWorker implements Runnable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExporterWorker.class);
     private int workerId;
 
     private String connectionName;
@@ -32,9 +35,9 @@ public class ExporterWorker implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("\t\t||| Exporting for: " + connectionName + " range {" + range[0] + "," + range[1] + "}");
+        LOGGER.debug("Exporting for: " + connectionName + " range {" + range[0] + "," + range[1] + "}");
         createExport(dbManager.executeQuery(this.rangedQuery));
-        System.out.println("\t\t||| Finished Export for: " + connectionName + " range {" + range[0] + "," + range[1] + "}");
+        LOGGER.debug("Finished Export for: " + connectionName + " range {" + range[0] + "," + range[1] + "}");
     }
 
     private void createExport(ResultSet set) {

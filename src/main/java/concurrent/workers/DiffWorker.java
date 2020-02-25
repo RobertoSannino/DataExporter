@@ -2,6 +2,8 @@ package concurrent.workers;
 
 import concurrent.Permits;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.FileUtils;
 
 import java.util.ArrayList;
@@ -11,6 +13,8 @@ import static config.Const.EXPORT_DIR;
 import static config.Const.EX_TIME;
 
 public class DiffWorker implements Runnable{
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiffWorker.class);
 
     private List<String> files;
     private int workerId;
@@ -27,7 +31,7 @@ public class DiffWorker implements Runnable{
     @Override
     public void run() {
         List<String> diff = diff(files.get(workerId), files.get( (workerId - 1) * -1) );
-        System.out.println("\t\t\t\t --- Founded " + diff.size() + " entries in Connection " + connectionName + " that are not present in the other Connection ");
+        LOGGER.warn("Founded " + diff.size() + " entries in Connection " + connectionName + " that are not present in the other Connection ");
 
         this.fileUtils.writeContentToFile(diff, EXPORT_DIR + connectionName + "_EntriesDiff_" + EX_TIME);
         Permits.releaseExecPermits(1);

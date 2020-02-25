@@ -1,12 +1,15 @@
 package db;
 
 import connection.ConnectionInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.sql.*;
 
 public class DbManager {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DbManager.class);
     private Connection connection;
     private ConnectionInstance connectionProperties;
 
@@ -16,15 +19,13 @@ public class DbManager {
 
     private Connection getConnection() throws NamingException, SQLException {
         try {
-            System.setProperty("javax.management.MBeanTrustPermission", System.getProperty("user.dir") + "/properties/grant.conf");
             if (this.connection == null || this.connection.isClosed()) {
-                DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
                 this.connection = DriverManager.getConnection(this.connectionProperties.getConnectionString(), this.connectionProperties.getUsername(), this.connectionProperties.getPwd());
             }
         } catch (Exception e) {
-            System.out.println("*** DB CONNECTION EXCEPTION FOR: "+ connectionProperties.getConnectionName() + " ***");
+            LOGGER.error("DB CONNECTION EXCEPTION FOR: "+ connectionProperties.getConnectionName());
             if(e.getMessage().contains("ORA-12519"))
-                System.out.println("\t *** TOO MANY CONNECTIONS ***");
+                LOGGER.error("TOO MANY OPEN CONNECTIONS, CONSIDER CHANGING DB CONFIGURATION OR TUNING THE db.maxParallelConnections.* PROPERTY ACCORDINGLY");
             else
                 e.printStackTrace();
         }
