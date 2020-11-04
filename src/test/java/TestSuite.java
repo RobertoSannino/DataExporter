@@ -1,38 +1,32 @@
 import config.Env;
 import connection.OracleConnectionInstance;
+import connection.PostgresConnectionInstance;
 import db.DbManager;
+import connection.ConnectionInstance;
 import org.junit.Before;
 import org.junit.Test;
-import connection.ConnectionInstance;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
 import static config.Const.QUERY_DIR;
-import static java.lang.Thread.sleep;
 
 public class TestSuite {
 
-    private String userQuery;
-    private String roleMembershipsQuery;
+    private String query;
 
     @Before
     public void init() {
-        this.userQuery = QUERY_DIR + "USER";
-        this.roleMembershipsQuery = QUERY_DIR + "ROLE_MEMS";
+        this.query = QUERY_DIR + "q_select_all_random_1";
     }
 
     @Test
     public void testConnection() {
-        ConnectionInstance c1 = new OracleConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, this.userQuery);
+        ConnectionInstance c1 = new PostgresConnectionInstance(Env.POSTGRES, "PG_1", this.query);
         System.out.println(c1.getConnectionString());
         DbManager dbManager = new DbManager(c1);
-        dbManager.executeQuery("SELECT USR_KEY FROM USR");
-
-        ConnectionInstance c2 = new OracleConnectionInstance(Env.LOCAL_2, "LOCAL_2", false, this.userQuery);
-        System.out.println(c2.getConnectionString());
-        DbManager dbManager2 = new DbManager(c2);
-        dbManager2.executeQuery("SELECT USR_KEY FROM USR");
+        dbManager.executeQuery("SELECT * FROM public.t_random_1 WHERE id = 1");
     }
 
     @Test
@@ -75,7 +69,7 @@ public class TestSuite {
 
     @Test
     public void testOracleRangedQuery() {
-        ConnectionInstance c1 = new OracleConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, this.userQuery);
+        ConnectionInstance c1 = new OracleConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, this.query);
 
         String query = "SELECT USR_LOGIN AS PIPPO_LOGIN, USR_LAST_NAME AS NACHNAME FROM USR WHERE USR_STATUS != 'Deleted' ORDER BY USR_LOGIN";
         query = query.substring(0, query.indexOf(" FROM ")) + ", rownum r " + query.substring(query.indexOf(" FROM "));

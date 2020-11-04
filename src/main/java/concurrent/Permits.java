@@ -1,9 +1,12 @@
 package concurrent;
 
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 public class Permits {
+
+    private Permits() throws Exception {
+        throw new Exception("Do not instanstiate static class");
+    }
 
     private static Semaphore execPermits;
 
@@ -11,15 +14,11 @@ public class Permits {
         execPermits = new Semaphore(permits);
     }
 
-    public static void acquireExecPermits(int permits) {
-        try {
-            execPermits.acquire(permits);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public static void acquireExecPermits(int permits) throws InterruptedException {
+        execPermits.acquire(permits);
     }
 
-    public static void releaseExecPermits(int permits) {
-        execPermits.release(permits);
+    public static void releasePermit(int n) {
+        execPermits.release(n);
     }
 }

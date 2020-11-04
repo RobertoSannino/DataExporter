@@ -8,14 +8,11 @@ public class FileUtils {
 
     public String getFileContent(String filePath) {
         StringBuilder content = new StringBuilder();
-        BufferedReader reader;
         String line;
-        try {
-            reader = new BufferedReader(new FileReader(filePath));
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             while( (line = reader.readLine()) != null) {
                 content.append(line.trim()).append("\n");
             }
-            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -25,14 +22,11 @@ public class FileUtils {
 
     public List<String> getListFileContent(String filePath) {
         List<String> contents = new ArrayList<>();
-        BufferedReader reader;
         String line;
-        try {
-            reader = new BufferedReader(new FileReader(filePath));
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             while( (line = reader.readLine()) != null) {
                 contents.add(line.trim());
             }
-            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

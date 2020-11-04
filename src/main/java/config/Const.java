@@ -5,6 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Const {
+
+    private Const() throws Exception {
+        throw new Exception("Do not instanstiate static class");
+    }
+
     private static final String DATE_FORMAT = PropertiesLoader.getInstance().getProperty("date.format");
 
     public static final String EXPORT_DIR;

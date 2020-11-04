@@ -2,20 +2,20 @@ package connection;
 
 import config.Env;
 import config.PropertiesLoader;
-import util.QueryHelper;
+import util.QueryUtils;
 import java.util.ArrayList;
 
 public abstract class ConnectionInstance {
 
     Env env;
-    QueryHelper queryHelper;
-    private String connectionName;
+    QueryUtils queryUtils;
+    private final String connectionName;
 
 
     public ConnectionInstance(Env env, String connectionName, String queryPath) {
         this.env = env;
         this.connectionName = connectionName;
-        this.queryHelper = new QueryHelper(queryPath);
+        this.queryUtils = new QueryUtils(queryPath);
     }
 
     public String getConnectionName() {
@@ -43,16 +43,16 @@ public abstract class ConnectionInstance {
 
     public String getPwd() { return PropertiesLoader.getInstance().getProperty("db.pwd",env); }
 
-    public int getMaxParallelConnection() { return Integer.valueOf(PropertiesLoader.getInstance().getProperty("db.maxParallelConnections",env)); }
+    public int getMaxParallelConnection() { return Integer.parseInt(PropertiesLoader.getInstance().getProperty("db.maxParallelConnections",env)); }
 
     public String getQuery() {
-        return this.queryHelper.getQuery();
+        return this.queryUtils.getQuery();
     }
 
     public ArrayList<String> getProjectionAttributes() {
-        return this.queryHelper.getProjectionAttributes();
+        return this.queryUtils.getProjectionAttributes();
     }
 
-    public String getCountQuery() { return this.queryHelper.getCountQuery(); }
+    public String getCountQuery() { return this.queryUtils.getCountQuery(); }
 
 }

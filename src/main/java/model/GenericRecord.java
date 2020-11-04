@@ -1,7 +1,7 @@
-package design;
+package model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class GenericRecord {
@@ -26,7 +26,7 @@ public class GenericRecord {
         return this.attributes.get(attr);
     }
 
-    public String toStringValues(ArrayList<String> order) {
+    public String toStringValues(List<String> order) {
         StringBuilder values = new StringBuilder();
         for(String attr : order) {
             values.append("\"").append(this.attributes.get(attr)).append("\"").append(", ");

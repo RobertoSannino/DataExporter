@@ -10,11 +10,11 @@ public class PropertiesLoader {
     private static Properties properties;
     private static PropertiesLoader instance = new PropertiesLoader(PROPERTIES_FILE);
 
-    private PropertiesLoader(String PROPERTIES_FILE) {
-        loadPropertiesFile(PROPERTIES_FILE);
+    private PropertiesLoader(String propertiesFile) {
+        loadPropertiesFile(propertiesFile);
     }
 
-    public synchronized static PropertiesLoader getInstance() {
+    public static synchronized PropertiesLoader getInstance() {
         if(instance == null)
             instance = new PropertiesLoader(PROPERTIES_FILE);
         return instance;

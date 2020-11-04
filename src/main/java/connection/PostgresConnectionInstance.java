@@ -10,6 +10,6 @@ public class PostgresConnectionInstance extends ConnectionInstance {
 
     @Override
     public String getRangedQuery(int[] range) {
-        return this.queryHelper.getPostgresRangedQuery(range);
+        return this.queryUtils.getPostgresRangedQuery(range);
     }
 }

@@ -2,8 +2,10 @@
 # Edit at https://www.gitignore.io/?templates=java,intellij
 
 queries/
+exports/
 properties/properties.properties
 todo.txt
+output.log
 
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm

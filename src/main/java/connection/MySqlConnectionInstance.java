@@ -1,7 +1,6 @@
 package connection;
 
 import config.Env;
-import config.PropertiesLoader;
 
 public class MySqlConnectionInstance extends ConnectionInstance {
 
@@ -11,6 +10,6 @@ public class MySqlConnectionInstance extends ConnectionInstance {
 
     @Override
     public String getRangedQuery(int[] range) {
-        return this.queryHelper.getMySqlRangedQuery(range);
+        return this.queryUtils.getMySqlRangedQuery(range);
     }
 }

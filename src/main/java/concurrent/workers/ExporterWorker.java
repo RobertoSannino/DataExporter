@@ -1,5 +1,6 @@
 package concurrent.workers;
 
+import concurrent.Permits;
 import db.DbManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +16,14 @@ import static config.Const.INTERMEDIATE_FILE_SEPARATOR;
 
 public class ExporterWorker implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExporterWorker.class);
-    private int workerId;
+    private static final Logger log = LoggerFactory.getLogger(ExporterWorker.class);
+    private final int workerId;
 
-    private String connectionName;
-    private int[] range;
-    private String rangedQuery;
-    private DbManager dbManager;
-    private ArrayList<String> attrinbutesToExport;
+    private final String connectionName;
+    private final int[] range;
+    private final String rangedQuery;
+    private final DbManager dbManager;
+    private final ArrayList<String> attrinbutesToExport;
 
     public ExporterWorker(int workerId, String connectionName, int[] range, String rangedQuery, DbManager dbManager, ArrayList<String> attrinbutesToExport) {
         this.workerId = workerId;
@@ -35,33 +36,29 @@ public class ExporterWorker implements Runnable {
 
     @Override
     public void run() {
-        LOGGER.debug("Exporting for: " + connectionName + " range {" + range[0] + "," + range[1] + "}");
+        log.debug("Exporting for: {} range [{},{}]", connectionName, range[0], range[1]);
         createExport(dbManager.executeQuery(this.rangedQuery));
-        LOGGER.debug("Finished Export for: " + connectionName + " range {" + range[0] + "," + range[1] + "}");
+        Permits.releasePermit(1);
+        log.debug("Finished Export for: {} range [{},{}]", connectionName, range[0], range[1]);
     }
 
-    private void createExport(ResultSet set) {
-        PrintWriter pw;
-        try {
-            pw = new PrintWriter(EXPORT_DIR + connectionName + INTERMEDIATE_FILE_SEPARATOR + workerId);
+    private void createExport(ResultSet resultSet) {
+        try (PrintWriter pw = new PrintWriter(EXPORT_DIR + connectionName + INTERMEDIATE_FILE_SEPARATOR + workerId)){
             StringBuilder record = new StringBuilder();
             int i = 1;
             ArrayList<String> attributes = this.attrinbutesToExport;
-            while(set.next()) {
-                // they are ordered...in theory
+            while(resultSet.next()) {
+                // mantains order
                 for (String attribute : attributes) {
-                    record.append("\"").append(set.getString(i++)).append("\",");
+                    record.append("\"").append(resultSet.getString(i++)).append("\",");
                 }
                 i = 1;
                 pw.println(record.substring(0,record.length()-1));
                 record = new StringBuilder();
             }
-            set.close();
+            resultSet.close();
             this.dbManager.releaseConnection();
-            pw.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
+        } catch (FileNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }

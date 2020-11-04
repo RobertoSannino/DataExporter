@@ -1,15 +1,14 @@
 package connection;
 
 import config.Env;
-import config.PropertiesLoader;
 
 public class OracleConnectionInstance extends ConnectionInstance {
 
     private boolean sid;
 
-    public OracleConnectionInstance(Env env, String connectionName, boolean SID, String queryPath) {
+    public OracleConnectionInstance(Env env, String connectionName, boolean sid, String queryPath) {
         super(env, connectionName, queryPath);
-        this.sid = SID;
+        this.sid = sid;
     }
 
     @Override
@@ -22,6 +21,6 @@ public class OracleConnectionInstance extends ConnectionInstance {
 
     @Override
     public String getRangedQuery(int[] range) {
-        return this.queryHelper.getOracleRangedQuery(range);
+        return this.queryUtils.getOracleRangedQuery(range);
     }
 }
