@@ -31,7 +31,7 @@ public class QueryUtils {
         if (semicolonPosition == queryContent.length() - 1)
             queryContent = queryContent.substring(0, queryContent.length() - 1);
 
-        queryContent = queryContent.replaceAll("\n"," ").toUpperCase();
+        queryContent = queryContent.replace("\n"," ").toUpperCase();
         log.info("SUBMITTED QUERY: {}", queryContent);
         return queryContent;
     }
@@ -52,11 +52,11 @@ public class QueryUtils {
             if(attrs[i].contains(" AS ")) {
                 attrs[i] = attrs[i].substring(attrs[i].indexOf(" AS ") + 4);
             }
-            attrs[i] = attrs[i].replaceAll(" ","");
+            attrs[i] = attrs[i].replace(" ","");
         }
 
         ArrayList<String> projAttrs = new ArrayList<>(Arrays.asList(attrs));
-        log.debug("INFERRED PROJECTION ATTRIBUTES: {}", projAttrs.toString());
+        log.debug("INFERRED PROJECTION ATTRIBUTES: {}", projAttrs);
         return projAttrs;
     }
 

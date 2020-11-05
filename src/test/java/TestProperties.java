@@ -1,4 +1,3 @@
-import config.Env;
 import config.PropertiesLoader;
 import org.junit.Test;
 
@@ -8,7 +7,7 @@ public class TestProperties {
 
     @Test
     public void testReadProperties() {
-        assertEquals ("localhost", PropertiesLoader.getInstance().getProperty("db.host", Env.LOCAL_1));
+        assertEquals ("localhost", PropertiesLoader.getInstance().getProperty("db.host", "local.1"));
         assertEquals(System.getProperty("user.dir")+"\\queries\\", PropertiesLoader.getInstance().getProperty("dir.query"));
     }
 }

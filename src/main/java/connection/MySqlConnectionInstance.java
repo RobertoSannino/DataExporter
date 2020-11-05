@@ -1,11 +1,9 @@
 package connection;
 
-import config.Env;
-
 public class MySqlConnectionInstance extends ConnectionInstance {
 
-    public MySqlConnectionInstance(Env env, String connectionName, String queryPath) {
-        super(env, connectionName, queryPath);
+    public MySqlConnectionInstance(String propertiesSuffix, String connectionName, String queryPath) {
+        super(propertiesSuffix, connectionName, queryPath);
     }
 
     @Override

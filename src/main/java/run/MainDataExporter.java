@@ -1,6 +1,5 @@
 package run;
 
-import config.Env;
 import connection.ConnectionInstance;
 import connection.PostgresConnectionInstance;
 
@@ -18,8 +17,8 @@ public class MainDataExporter {
         ConnectionInstance c2 = new OracleConnectionInstance(Env.LOCAL_2,"LOCAL_2", true, QUERY_DIR + "ROLE_MEMS");
 
         ConnectionInstance c3 = new MySqlConnectionInstance(Env.MY_SQL, "MY_SQL", QUERY_DIR + "USER");*/
-        ConnectionInstance c4 = new PostgresConnectionInstance(Env.POSTGRES,"PG_1", QUERY_DIR + "q_select_descr_random_1");
-        ConnectionInstance c5 = new PostgresConnectionInstance(Env.POSTGRES,"PG_2", QUERY_DIR + "q_select_descr_random_2");
+        ConnectionInstance c4 = new PostgresConnectionInstance("postgres","PG_1", QUERY_DIR + "q_select_descr_random_1");
+        ConnectionInstance c5 = new PostgresConnectionInstance("postgres","PG_2", QUERY_DIR + "q_select_descr_random_2");
 
         /*connectionInstances.add(c1);
         connectionInstances.add(c2);

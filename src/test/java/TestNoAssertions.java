@@ -1,4 +1,3 @@
-import config.Env;
 import connection.OracleConnectionInstance;
 import connection.PostgresConnectionInstance;
 import db.DbManager;
@@ -12,18 +11,18 @@ import java.util.HashMap;
 
 import static config.Const.QUERY_DIR;
 
-public class TestSuite {
+public class TestNoAssertions {
 
     private String query;
 
     @Before
     public void init() {
-        this.query = QUERY_DIR + "q_select_all_random_1";
+        this.query = QUERY_DIR + "q_select_descr_random_1";
     }
 
     @Test
     public void testConnection() {
-        ConnectionInstance c1 = new PostgresConnectionInstance(Env.POSTGRES, "PG_1", this.query);
+        ConnectionInstance c1 = new PostgresConnectionInstance("postgres", "PG_1", this.query);
         System.out.println(c1.getConnectionString());
         DbManager dbManager = new DbManager(c1);
         dbManager.executeQuery("SELECT * FROM public.t_random_1 WHERE id = 1");
@@ -69,7 +68,7 @@ public class TestSuite {
 
     @Test
     public void testOracleRangedQuery() {
-        ConnectionInstance c1 = new OracleConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, this.query);
+        ConnectionInstance c1 = new OracleConnectionInstance("local.1", "LOCAL_1", false, this.query);
 
         String query = "SELECT USR_LOGIN AS PIPPO_LOGIN, USR_LAST_NAME AS NACHNAME FROM USR WHERE USR_STATUS != 'Deleted' ORDER BY USR_LOGIN";
         query = query.substring(0, query.indexOf(" FROM ")) + ", rownum r " + query.substring(query.indexOf(" FROM "));

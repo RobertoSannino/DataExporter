@@ -1,13 +1,11 @@
 package connection;
 
-import config.Env;
-
 public class OracleConnectionInstance extends ConnectionInstance {
 
     private boolean sid;
 
-    public OracleConnectionInstance(Env env, String connectionName, boolean sid, String queryPath) {
-        super(env, connectionName, queryPath);
+    public OracleConnectionInstance(String propertiesSuffix, String connectionName, boolean sid, String queryPath) {
+        super(propertiesSuffix, connectionName, queryPath);
         this.sid = sid;
     }
 

@@ -24,8 +24,8 @@ public class PropertiesLoader {
         return getProperties().getProperty(key);
     }
 
-    public synchronized String getProperty(String key, Env env) {
-        return getProperties().getProperty(key+"."+env.getConnPropName());
+    public synchronized String getProperty(String key, String propertiesSuffix) {
+        return getProperties().getProperty(key+"."+propertiesSuffix);
     }
 
     private Properties getProperties(){

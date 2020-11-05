@@ -23,7 +23,7 @@ public class DataService {
     }
 
     public void exportData() throws Exception {
-        log.warn("STARTING EXPORTS");
+        log.info("STARTING EXPORTS");
         long startTime = System.currentTimeMillis();
 
         int maxParallelConnections = connectionInstances.stream().map(ConnectionInstance::getMaxParallelConnection).reduce(Integer::sum).orElse(0);
@@ -38,7 +38,7 @@ public class DataService {
 
         connectionInstances.forEach(this::mergeFiles);
 
-        log.warn("EXPORTS FINISHED IN {} SECONDS",(System.currentTimeMillis() - startTime)/1000f);
+        log.info("EXPORTS FINISHED IN {} SECONDS",(System.currentTimeMillis() - startTime)/1000f);
     }
 
     private int getResultSetRows(ConnectionInstance c) {
@@ -46,7 +46,7 @@ public class DataService {
         DbManager dbManager = new DbManager(c);
         int rows = dbManager.countTable(c.getCountQuery());
         dbManager.releaseConnection();
-        log.warn("COUNT FOR {} FINISHED IN {} SECONDS", c.getConnectionName(), (System.currentTimeMillis() - startTime)/1000f);
+        log.info("COUNT FOR {} FINISHED IN {} SECONDS", c.getConnectionName(), (System.currentTimeMillis() - startTime)/1000f);
         return rows;
     }
 
@@ -98,7 +98,7 @@ public class DataService {
             e.printStackTrace();
         }
 
-        log.warn("MERGE INTERMEDIATE FILES FOR {} FINISHED IN {} SECONDS",c.getConnectionName(), (System.currentTimeMillis() - startTime)/1000f);
+        log.info("MERGE INTERMEDIATE FILES FOR {} FINISHED IN {} SECONDS",c.getConnectionName(), (System.currentTimeMillis() - startTime)/1000f);
     }
 
 }

@@ -4,6 +4,7 @@ import connection.ConnectionInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingException;
 import java.sql.*;
 
 public class DbManager {
@@ -41,8 +42,10 @@ public class DbManager {
 
     // closing connection before looking all the ResultSet lead to error in reading it
     public ResultSet executeQuery(String query)  {
+        PreparedStatement stm;
         ResultSet results = null;
-        try (PreparedStatement stm = getConnection().prepareStatement(query)){
+        try {
+            stm = getConnection().prepareStatement(query);
             results = stm.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
