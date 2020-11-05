@@ -4,7 +4,6 @@ import connection.ConnectionInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import java.sql.*;
 
 public class DbManager {
@@ -20,7 +19,7 @@ public class DbManager {
     private Connection getConnection() {
         try {
             if (this.connection == null || this.connection.isClosed()) {
-                this.connection = DriverManager.getConnection(this.connectionProperties.getConnectionString(), this.connectionProperties.getUsername(), this.connectionProperties.getPwd());
+                this.connection = DriverManager.getConnection(this.connectionProperties.getConnectionString(), this.connectionProperties.getUser(), this.connectionProperties.getPwd());
             }
         } catch (Exception e) {
             log.error("DB CONNECTION EXCEPTION FOR: {}", connectionProperties.getConnectionName());

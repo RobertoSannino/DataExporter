@@ -10,11 +10,42 @@ public abstract class ConnectionInstance {
     QueryUtils queryUtils;
     private final String connectionName;
 
+    String driver;
+    String host;
+    String port;
+    String serviceName;
+    String user;
+    String pwd;
+    int maxParallelCollections;
+
 
     public ConnectionInstance(String propertiesSuffix, String connectionName, String queryPath) {
         this.propertiesSuffix = propertiesSuffix;
         this.connectionName = connectionName;
         this.queryUtils = new QueryUtils(queryPath);
+        loadProperties();
+    }
+
+    public ConnectionInstance(String connectionName, String queryPath, String driver, String host, String port, String serviceName, String user, String pwd, int mpc) {
+        this.connectionName = connectionName;
+        this.queryUtils = new QueryUtils(queryPath);
+        this.driver = driver;
+        this.host = host;
+        this.port = port;
+        this.serviceName = serviceName;
+        this.user = user;
+        this.pwd = pwd;
+        this.maxParallelCollections = mpc;
+    }
+
+    private void loadProperties() {
+        this.driver =  PropertiesLoader.getInstance().getProperty("db.driver",propertiesSuffix);
+        this.host =  PropertiesLoader.getInstance().getProperty("db.host",propertiesSuffix);
+        this.port =  PropertiesLoader.getInstance().getProperty("db.port",propertiesSuffix);
+        this.serviceName =  PropertiesLoader.getInstance().getProperty("db.serviceName",propertiesSuffix);
+        this.user =  PropertiesLoader.getInstance().getProperty("db.user",propertiesSuffix);
+        this.pwd =  PropertiesLoader.getInstance().getProperty("db.pwd",propertiesSuffix);
+        this.maxParallelCollections =  Integer.parseInt(PropertiesLoader.getInstance().getProperty("db.maxParallelConnections",propertiesSuffix));
     }
 
     public String getConnectionName() {
@@ -22,10 +53,7 @@ public abstract class ConnectionInstance {
     }
 
     public String getConnectionString() {
-        return "jdbc:" + PropertiesLoader.getInstance().getProperty("db.driver",propertiesSuffix) +
-                getHostSeparator() + PropertiesLoader.getInstance().getProperty("db.host",propertiesSuffix) +
-                ":" + PropertiesLoader.getInstance().getProperty("db.port",propertiesSuffix) +
-                getServiceSeparator() + PropertiesLoader.getInstance().getProperty("db.serviceName",propertiesSuffix);
+        return "jdbc:" + this.driver + getHostSeparator() + this.host + ":" + this.port + getServiceSeparator() + this.serviceName;
     }
 
     String getHostSeparator() {
@@ -38,11 +66,11 @@ public abstract class ConnectionInstance {
 
     public String getRangedQuery(int[] range) { return null; }
 
-    public String getUsername() { return PropertiesLoader.getInstance().getProperty("db.user",propertiesSuffix); }
+    public String getUser() { return this.user; }
 
-    public String getPwd() { return PropertiesLoader.getInstance().getProperty("db.pwd",propertiesSuffix); }
+    public String getPwd() { return this.pwd; }
 
-    public int getMaxParallelConnection() { return Integer.parseInt(PropertiesLoader.getInstance().getProperty("db.maxParallelConnections",propertiesSuffix)); }
+    public int getMaxParallelConnection() { return this.maxParallelCollections; }
 
     public String getQuery() {
         return this.queryUtils.getQuery();

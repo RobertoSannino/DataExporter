@@ -9,6 +9,11 @@ public class OracleConnectionInstance extends ConnectionInstance {
         this.sid = sid;
     }
 
+    public OracleConnectionInstance(String connectionName, String queryPath, String driver, String host, String port, String serviceName, String user, String pwd, int mpc, boolean sid) {
+        super(connectionName, queryPath, driver, host, port, serviceName, user, pwd, mpc);
+        this.sid = sid;
+    }
+
     @Override
     String getHostSeparator() { return ":@"; }
 
