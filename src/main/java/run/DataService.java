@@ -2,8 +2,10 @@ package run;
 
 import concurrent.Permits;
 import concurrent.workers.ExporterWorker;
+import connection.ConnectionValidator;
 import db.DbManager;
 import connection.ConnectionInstance;
+import exception.InputValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +13,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 
+import static ch.qos.logback.core.util.OptionHelper.isEmpty;
 import static config.Const.*;
 
 public class DataService {
@@ -22,14 +25,18 @@ public class DataService {
         this.connectionInstances = connectionInstances;
     }
 
-    public void exportData() throws Exception {
+    public void exportData() throws InputValidationException, InterruptedException {
+        log.info("VALIDATING INPUT");
+        for (ConnectionInstance connectionInstance : connectionInstances) {
+            String errors = ConnectionValidator.validateConnection(connectionInstance);
+            if (!isEmpty(errors)) {
+                throw new InputValidationException(connectionInstance.getConnectionName() + ": " + errors);
+            }
+        }
+
         log.info("STARTING EXPORTS");
         long startTime = System.currentTimeMillis();
-
         int maxParallelConnections = connectionInstances.stream().map(ConnectionInstance::getMaxParallelConnection).reduce(Integer::sum).orElse(0);
-        if (maxParallelConnections <= 0) {
-            throw new Exception("Sum of specified number of connections is zero or below");
-        }
 
         Permits.setExecPermitsNumber(maxParallelConnections);
         Permits.acquireExecPermits(maxParallelConnections);
@@ -84,14 +91,10 @@ public class DataService {
                         pw.println(scanner.nextLine().trim());
                     }
                     //DELETE PARTIAL FILE
-                    try {
-                        new File(EXPORT_DIR + c.getConnectionName() + INTERMEDIATE_FILE_SEPARATOR + i).delete();
-                    } catch (Exception e) {
-                        log.error("ERROR OCCURRED WHILE DELETING: {}", EXPORT_DIR + c.getConnectionName() + INTERMEDIATE_FILE_SEPARATOR + i);
-                    }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
+                this.deletePartialFile(c.getConnectionName(), i);
             }
             pw.close();
         } catch (IOException e) {
@@ -99,6 +102,16 @@ public class DataService {
         }
 
         log.info("MERGE INTERMEDIATE FILES FOR {} FINISHED IN {} SECONDS",c.getConnectionName(), (System.currentTimeMillis() - startTime)/1000f);
+    }
+
+    private void deletePartialFile(String connectionName, int fileNumber) {
+        String path = EXPORT_DIR + connectionName + INTERMEDIATE_FILE_SEPARATOR + fileNumber;
+        try {
+            Files.delete(new File(path).toPath());
+        } catch (Exception e) {
+            log.error("ERROR OCCURRED WHILE DELETING: {}", path);
+            e.printStackTrace();
+        }
     }
 
 }

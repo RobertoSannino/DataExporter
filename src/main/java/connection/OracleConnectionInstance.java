@@ -14,6 +14,14 @@ public class OracleConnectionInstance extends ConnectionInstance {
         this.sid = sid;
     }
 
+    public boolean isSid() {
+        return sid;
+    }
+
+    public void setSid(boolean sid) {
+        this.sid = sid;
+    }
+
     @Override
     String getHostSeparator() { return ":@"; }
 

@@ -2,6 +2,7 @@ package run;
 
 import connection.ConnectionInstance;
 import connection.PostgresConnectionInstance;
+import exception.InputValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import static config.Const.QUERY_DIR;
 
 public class MainDataExporter {
 
-    public static void main (String[] args) throws Exception {
+    public static void main (String[] args) throws InputValidationException, Exception {
         List<ConnectionInstance> connectionInstances = new ArrayList<>();
 
         /*ConnectionInstance c1 = new OracleConnectionInstance(Env.LOCAL_1, "LOCAL_1", false, QUERY_DIR + "ROLE_MEMS_2");

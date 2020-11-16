@@ -37,12 +37,16 @@ public class ExporterWorker implements Runnable {
     @Override
     public void run() {
         log.debug("Exporting for: {} range [{},{}]", connectionName, range[0], range[1]);
-        createExport(dbManager.executeQuery(this.rangedQuery));
+        try {
+            createExport(dbManager.executeQuery(this.rangedQuery));
+        } catch (FileNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
         Permits.releasePermit(1);
         log.debug("Finished Export for: {} range [{},{}]", connectionName, range[0], range[1]);
     }
 
-    private void createExport(ResultSet resultSet) {
+    private void createExport(ResultSet resultSet) throws FileNotFoundException, SQLException {
         try (PrintWriter pw = new PrintWriter(EXPORT_DIR + connectionName + INTERMEDIATE_FILE_SEPARATOR + workerId)){
             StringBuilder record = new StringBuilder();
             int i = 1;
@@ -60,6 +64,7 @@ public class ExporterWorker implements Runnable {
             this.dbManager.releaseConnection();
         } catch (FileNotFoundException | SQLException e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
